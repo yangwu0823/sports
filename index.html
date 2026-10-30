@@ -1,0 +1,323 @@
+<title>體重管理成果報告</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* Layout: one centered column — editing tools on top, the screenshot-ready report card below */
+:root{
+  --bg:#eef1f6; --card:#ffffff; --soft:#f6f8fb; --line:#e3e8ef;
+  --fg:#1f2a3a; --muted:#7a8699; --blue:#2563eb; --weekbg:#dce7fb; --weekfg:#1e40af;
+  --neg:#dc2626; --pos:#16a34a; --zero:#9aa5b5; --thead:#2b3a4f; --theadfg:#ffffff;
+  --hero1:#3b82f6; --hero2:#1d4ed8; --herofg:#ffffff; --teal1:#10b981; --teal2:#0d9488;
+  --input:#ffffff; --shadow:0 2px 10px rgba(30,50,90,.07);
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f141c; --card:#182030; --soft:#131a26; --line:#263043;
+  --fg:#e6ebf3; --muted:#8b97aa; --blue:#78a8ff; --weekbg:#1c2b48; --weekfg:#a9c4ff;
+  --neg:#f87171; --pos:#4ade80; --zero:#64708a; --thead:#0b111a; --theadfg:#e6ebf3;
+  --hero1:#2f6fe0; --hero2:#1a3fa8; --input:#111826; --shadow:0 2px 10px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141c; --card:#182030; --soft:#131a26; --line:#263043;
+  --fg:#e6ebf3; --muted:#8b97aa; --blue:#78a8ff; --weekbg:#1c2b48; --weekfg:#a9c4ff;
+  --neg:#f87171; --pos:#4ade80; --zero:#64708a; --thead:#0b111a; --theadfg:#e6ebf3;
+  --hero1:#2f6fe0; --hero2:#1a3fa8; --input:#111826; --shadow:0 2px 10px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin:0 auto;padding-block:16px 40px;display:flex;flex-direction:column;gap:14px}
+.num{font-variant-numeric:tabular-nums}
+
+/* tools */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.panel h2{margin:0;font-size:15px;font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--input);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;min-width:0}
+textarea{min-height:90px;font-size:12px;font-family:ui-monospace,monospace}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
+select.grow{flex:1 1 140px;width:auto}
+button{font:inherit;font-size:14px;border-radius:9px;padding:9px 14px;cursor:pointer;border:1px solid var(--line);background:var(--soft);color:var(--fg)}
+button.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+button.danger{color:var(--neg)}
+button[data-armed]{background:var(--neg);border-color:var(--neg);color:#fff}
+.calc{font-size:13px;color:var(--muted)}
+.calc b{color:var(--fg)}
+details summary{cursor:pointer;font-weight:700;font-size:15px}
+details[open] summary{margin-bottom:10px}
+.hint{font-size:12px;color:var(--muted);margin:0}
+
+/* report */
+.report{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.hero{background:linear-gradient(135deg,var(--hero1),var(--hero2));color:var(--herofg);text-align:center;padding:26px 16px 22px}
+.hero h1{margin:0 0 6px;font-size:22px;font-weight:900;text-wrap:balance;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 12px}
+.hero h1 .sep{opacity:.6;font-weight:400}
+.badge{font-size:11px;font-weight:700;border:1px solid rgba(255,255,255,.7);border-radius:99px;padding:2px 10px;background:rgba(255,255,255,.18)}
+.hero p{margin:0;font-size:13px;opacity:.92}
+.sec{padding:18px 16px;background:var(--soft)}
+.sec+.sec{border-top:1px solid var(--line)}
+.sec h3{margin:0 0 12px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.c{background:var(--card);border-radius:12px;padding:14px 6px;text-align:center;box-shadow:var(--shadow)}
+.c .v{font-size:21px;font-weight:900;line-height:1.2}
+.c .l{font-size:11px;color:var(--muted);margin-top:4px}
+.c.hi{background:linear-gradient(135deg,var(--teal1),var(--teal2));color:#fff}
+.c.hi .l{color:rgba(255,255,255,.9)}
+.neg{color:var(--neg)} .pos{color:var(--pos)} .zb{color:var(--blue)} .z{color:var(--zero)}
+.tw{overflow-x:auto;border-radius:6px}
+table{width:100%;min-width:540px;border-collapse:collapse;font-size:13px;text-align:center;font-variant-numeric:tabular-nums}
+th{background:var(--thead);color:var(--theadfg);font-weight:700;padding:10px 4px;white-space:nowrap}
+td{padding:8px 4px;border-bottom:1px solid var(--line);background:var(--card)}
+tr.day:nth-child(even) td{background:var(--soft)}
+tr.week td{background:var(--weekbg);font-weight:700;padding:10px 4px}
+tr.week td:first-child{color:var(--weekfg);font-size:12px;line-height:1.45}
+td.w{color:var(--blue);font-weight:700}
+tr.miss td{color:var(--zero)}
+body:not(.reportmode) tr.day{cursor:pointer}
+body:not(.reportmode) tr.day:hover td{background:var(--weekbg)}
+.empty{padding:28px 12px;text-align:center;color:var(--muted);background:var(--card);border-radius:10px}
+.foot{text-align:center;font-size:12px;color:var(--muted);padding:16px;border-top:1px solid var(--line)}
+
+body.reportmode .tools{display:none}
+.exit{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));box-shadow:var(--shadow)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--thead);color:var(--theadfg);padding:10px 16px;border-radius:10px;font-size:14px;max-width:calc(100% - 32px);z-index:20}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}}
+</style>
+
+<div class="wrap">
+  <div class="tools">
+    <section class="panel">
+      <div class="row">
+        <select id="selPeriod" class="grow" aria-label="選擇期別"></select>
+        <button id="btnReport" class="primary">報告模式</button>
+      </div>
+      <p class="hint">資料只存在這台裝置的這個瀏覽器。換手機或清除瀏覽資料前，請先到下方「備份／還原」複製備份。</p>
+    </section>
+
+    <section class="panel" id="formPanel">
+      <h2 id="formTitle">新增每日紀錄</h2>
+      <div class="grid">
+        <label class="f">日期<input id="f-date" type="date"></label>
+        <label class="f">體重 (kg)<input id="f-w" inputmode="decimal" placeholder="54.3"></label>
+        <label class="f">體脂率 (%)<input id="f-fat" inputmode="decimal" placeholder="30.6"></label>
+        <label class="f">肌肉率 (%)<input id="f-mus" inputmode="decimal" placeholder="65.4"></label>
+        <label class="f">內臟脂肪<input id="f-vis" inputmode="decimal" placeholder="5"></label>
+        <label class="f">BMI<input id="f-bmi" inputmode="decimal" placeholder="有填身高可留空"></label>
+        <label class="f">生理年齡<input id="f-age" inputmode="numeric" placeholder="48"></label>
+        <div class="f calc" style="justify-content:flex-end">體脂重自動計算<b id="f-fatkg" class="num">—</b></div>
+      </div>
+      <div class="row">
+        <button id="btnSave" class="primary">新增紀錄</button>
+        <button id="btnClear">清空</button>
+        <button id="btnDel" class="danger" hidden>刪除這天</button>
+      </div>
+      <p class="hint">點下方表格的任一天，可以載入修改。</p>
+    </section>
+
+    <details class="panel" id="setup">
+      <summary>姓名與期別設定</summary>
+      <div class="grid">
+        <label class="f">姓名（顯示在報告上）<input id="s-name" placeholder="選填"></label>
+        <label class="f">身高 (cm，選填)<input id="s-height" inputmode="decimal" placeholder="自動算 BMI"></label>
+        <label class="f">期別名稱<input id="s-pname"></label>
+        <label class="f">開始日<input id="s-start" type="date"></label>
+        <label class="f">結束日<input id="s-end" type="date"></label>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button id="btnAddPeriod">＋ 新增下一期</button>
+        <button id="btnDelPeriod" class="danger">刪除本期</button>
+      </div>
+    </details>
+
+    <details class="panel">
+      <summary>備份／還原</summary>
+      <div class="row">
+        <button id="btnCopy">複製備份資料</button>
+        <button id="btnRestore" class="danger">用貼上的資料還原</button>
+      </div>
+      <textarea id="backup" aria-label="備份資料" placeholder="按「複製備份資料」後，把內容貼到 LINE 記事本或備忘錄保存。要還原時，把保存的內容貼回這裡。"></textarea>
+    </details>
+  </div>
+
+  <article class="report" id="report"></article>
+</div>
+<button class="exit primary" id="btnExit" hidden>返回編輯</button>
+
+<script>
+const KEY='wm-report-v2';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+
+// ---- dates (all as YYYY-MM-DD, UTC math) ----
+const D=s=>{const[y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};
+const ds=t=>new Date(t).toISOString().slice(0,10);
+const add=(s,n)=>ds(D(s)+n*864e5);
+const dd=(a,b)=>Math.round((D(b)-D(a))/864e5);
+const md=s=>s.slice(5).replace('-','/');
+const today=()=>{const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0')};
+const fmtD=s=>s.replace(/-/g,'/');
+
+// ---- numbers ----
+const num=v=>{if(v===''||v==null)return null;const n=Number(String(v).trim());return isFinite(n)?n:null};
+const r1=x=>Math.sign(x)*Math.round(Math.abs(x)*10+1e-9)/10;
+const fatkg=r=>(r.w!=null&&r.fat!=null)?Math.round(r.w*r.fat)/100:null;
+const val=(r,k)=>r?(k==='fatkg'?fatkg(r):(r[k]??null)):null;
+const diff=(a,b)=>(a==null||b==null)?null:r1(b-a);
+function signed(x,zeroCls){
+  if(x==null)return{t:'—',c:'z'};
+  if(x>0)return{t:'+'+x,c:'pos'};
+  if(x<0)return{t:String(x),c:'neg'};
+  return zeroCls==='zb'?{t:'+0',c:'zb'}:{t:'0',c:'z'};
+}
+
+// ---- start blank: period 1 from today ----
+function seed(){
+  const m=uid(),p=uid(),start=today();
+  return{members:[{id:m,name:'',height:'',periods:[{id:p,name:'第1期',start,end:add(start,27),records:{}}]}],cur:{m,p}};
+}
+function load(){try{const t=localStorage.getItem(KEY);if(t){const d=JSON.parse(t);if(d&&Array.isArray(d.members)&&d.members.length)return d}}catch(e){}return seed()}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('這個瀏覽器不讓網頁存資料，請用「複製備份資料」另外保存');return false}}
+
+let tt;function toast(msg){document.querySelectorAll('.toast').forEach(x=>x.remove());const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);clearTimeout(tt);tt=setTimeout(()=>el.remove(),2600)}
+
+function cur(){
+  const m=S.members.find(x=>x.id===S.cur?.m)||S.members[0];
+  const p=m.periods.find(x=>x.id===S.cur?.p)||m.periods[m.periods.length-1];
+  S.cur={m:m.id,p:p.id};return{m,p};
+}
+const datesOf=p=>Object.keys(p.records).sort();
+function weeksIn(p){const d=datesOf(p);const endD=p.end||d.at(-1)||p.start;return Math.max(1,Math.ceil((dd(p.start,endD)+1)/7))}
+
+// ---- report ----
+function renderReport(){
+  const{m,p}=cur();const dates=datesOf(p);const first=dates[0],last=dates.at(-1);
+  const R=p.records;const t=today();
+  const ongoing=!p.end||t<=p.end;
+  const sum=k=>diff(val(R[first],k),val(R[last],k));
+  const dw=sum('w'),dfk=sum('fatkg');
+  const ratio=(dw!=null&&dfk!=null&&dw<0)?(Math.round(dfk/dw*1000)/10)+'%':'—';
+  const card=(x,unit,l)=>{const s=signed(x,'zb');return`<div class="c"><div class="v num ${s.c}">${s.t}${x!=null&&unit?unit:''}</div><div class="l">${l}</div></div>`};
+  let h=`<header class="hero"><h1>${m.name?`<span>${esc(m.name)}</span><span class="sep">｜</span>`:''}<span>${esc(p.name)}成果報告</span><span class="badge">${ongoing?'進行中':'已結束'}</span></h1>
+  <p class="num">統計期間：${p.start} ～ ${last||p.start}</p>
+  <p class="num">體重變化 ${signed(dw,'zb').t} kg　體脂重變化 ${signed(dfk,'zb').t} kg</p></header>
+  <section class="sec"><h3>本期截至目前成果</h3><div class="cards">
+  ${card(dw,' kg','體重變化')}${card(dfk,' kg','體脂重變化')}${card(sum('fat'),'%','體脂率變化')}${card(sum('mus'),'%','肌肉率變化')}
+  ${card(sum('vis'),'','內臟脂肪變化')}${card(sum('bmi'),'','BMI 變化')}${card(sum('age'),'','生理年齡變化')}
+  <div class="c hi"><div class="v num">${ratio}</div><div class="l">減重脂肪占比</div></div></div></section>
+  <section class="sec"><h3>每日記錄詳細</h3>`;
+  if(!dates.length){h+=`<div class="empty">本期還沒有紀錄。在上方輸入第一筆體重資料後，報告會自動產生。</div>`}
+  else{
+    const keys=['w','fat','fatkg','mus','vis','bmi','age'];
+    const idx=m.periods.slice().sort((a,b)=>a.start<b.start?-1:1);
+    let off=0;for(const q of idx){if(q.id===p.id)break;off+=weeksIn(q)}
+    const n=Math.floor(dd(p.start,last)/7)+1;
+    h+=`<div class="tw"><table><thead><tr><th>日期</th><th>體重(kg)</th><th>體脂率(%)</th><th>體脂重(kg)</th><th>肌肉率(%)</th><th>內臟脂肪</th><th>BMI</th><th>生理年齡</th></tr></thead><tbody>`;
+    for(let i=n-1;i>=0;i--){
+      const ws=add(p.start,7*i),we=add(ws,6);
+      const inW=dates.filter(d=>d>=ws&&d<=we);
+      const before=dates.filter(d=>d<ws);
+      const base=before.length?before.at(-1):inW[0];
+      const end=inW.at(-1);
+      const live=ongoing&&t>=ws&&t<=we;
+      h+=`<tr class="week"><td>第${off+i+1}週${live?'<br>進行中':''}<br>本期第${i+1}週</td>`;
+      keys.forEach(k=>{const s=signed(end?diff(val(R[base],k),val(R[end],k)):null,'z');h+=`<td class="${s.c}">${s.t}</td>`});
+      h+=`</tr>`;
+      const stop=we<last?we:last;
+      for(let d=stop;d>=ws;d=add(d,-1)){
+        const r=R[d];
+        if(!r){h+=`<tr class="day miss" data-date="${d}"><td>${md(d)}</td><td>——</td><td colspan="6"></td></tr>`;continue}
+        h+=`<tr class="day" data-date="${d}"><td>${md(d)}</td>`+keys.map(k=>{const v=val(r,k);return`<td${k==='w'?' class="w"':''}>${v==null?'—':v}</td>`}).join('')+`</tr>`;
+      }
+    }
+    h+=`</tbody></table></div>`;
+  }
+  h+=`</section><footer class="foot num">${m.name?esc(m.name)+' ':''}體重管理系統 ・ 報告產生日期：${fmtD(t)}</footer>`;
+  $('#report').innerHTML=h;
+}
+
+// ---- controls ----
+function renderControls(){
+  const{m,p}=cur();
+  $('#selPeriod').innerHTML=m.periods.slice().sort((a,b)=>a.start<b.start?-1:1).map(x=>`<option value="${x.id}"${x.id===p.id?' selected':''}>${esc(x.name)}（${md(x.start)}～${x.end?md(x.end):''}）</option>`).join('');
+  $('#s-name').value=m.name;$('#s-height').value=m.height||'';
+  $('#s-pname').value=p.name;$('#s-start').value=p.start;$('#s-end').value=p.end||'';
+}
+function render(){renderControls();renderReport()}
+
+// ---- form ----
+const FK=['w','fat','mus','vis','bmi','age'];
+function defaultDate(){const{p}=cur();const t=today();if(t>=p.start&&(!p.end||t<=p.end))return t;const d=datesOf(p);if(d.length){const nx=add(d.at(-1),1);if(!p.end||nx<=p.end)return nx}return p.start}
+function fillForm(date){
+  const{p}=cur();$('#f-date').value=date;const r=p.records[date];
+  FK.forEach(k=>$('#f-'+k).value=r&&r[k]!=null?r[k]:'');
+  $('#btnSave').textContent=r?'更新這天':'新增紀錄';
+  $('#formTitle').textContent=r?`修改 ${fmtD(date)} 的紀錄`:'新增每日紀錄';
+  $('#btnDel').hidden=!r;updateCalc();
+}
+function updateCalc(){const k=fatkg({w:num($('#f-w').value),fat:num($('#f-fat').value)});$('#f-fatkg').textContent=k==null?'—':k+' kg'}
+['#f-w','#f-fat'].forEach(s=>$(s).addEventListener('input',updateCalc));
+$('#f-date').addEventListener('change',e=>{if(e.target.value)fillForm(e.target.value)});
+$('#btnClear').addEventListener('click',()=>fillForm(defaultDate()));
+$('#btnSave').addEventListener('click',()=>{
+  const{m,p}=cur();const d=$('#f-date').value;
+  if(!d)return toast('請先選日期');
+  if(d<p.start)return toast(`這天早於${p.name}開始日 ${fmtD(p.start)}，請換日期或修改期別設定`);
+  if(p.end&&d>p.end)return toast(`這天超過${p.name}結束日 ${fmtD(p.end)}，請先「新增下一期」`);
+  const r={};FK.forEach(k=>{const v=num($('#f-'+k).value);if(v!=null)r[k]=v});
+  if(r.w==null)return toast('請輸入體重');
+  const h=num(m.height);if(r.bmi==null&&h)r.bmi=r1(r.w/((h/100)**2));
+  const existed=!!p.records[d];p.records[d]=r;
+  if(save())toast(existed?'已更新':'已新增');
+  renderReport();fillForm(existed?d:defaultDate());
+});
+armed($('#btnDel'),'刪除這天',()=>{const{p}=cur();delete p.records[$('#f-date').value];save();toast('已刪除');renderReport();fillForm(defaultDate())});
+$('#report').addEventListener('click',e=>{
+  if(document.body.classList.contains('reportmode'))return;
+  const tr=e.target.closest('tr.day');if(!tr)return;
+  fillForm(tr.dataset.date);$('#formPanel').scrollIntoView({behavior:'smooth',block:'start'});$('#f-w').focus({preventScroll:true});
+});
+
+// two-step confirm
+function armed(btn,label,fn){btn.addEventListener('click',()=>{if(btn.dataset.armed!=null){delete btn.dataset.armed;btn.textContent=label;fn()}else{btn.dataset.armed='';btn.textContent='再按一次確認';setTimeout(()=>{if(btn.dataset.armed!=null){delete btn.dataset.armed;btn.textContent=label}},3500)}})}
+
+// ---- member / period ----
+$('#selPeriod').addEventListener('change',e=>{S.cur.p=e.target.value;save();render();fillForm(defaultDate())});
+$('#s-name').addEventListener('change',e=>{cur().m.name=e.target.value.trim();save();render()});
+$('#s-height').addEventListener('change',e=>{cur().m.height=e.target.value.trim();save()});
+$('#s-pname').addEventListener('change',e=>{const v=e.target.value.trim();if(!v)return render();cur().p.name=v;save();render()});
+$('#s-start').addEventListener('change',e=>{const{p}=cur();const v=e.target.value;if(!v)return render();const f=datesOf(p)[0];if(f&&v>f){toast(`開始日不能晚於第一筆紀錄 ${fmtD(f)}`);return render()}p.start=v;save();render()});
+$('#s-end').addEventListener('change',e=>{const{p}=cur();const v=e.target.value;const l=datesOf(p).at(-1);if(v&&l&&v<l){toast(`結束日不能早於最後一筆紀錄 ${fmtD(l)}`);return render()}if(v&&v<p.start){toast('結束日要在開始日之後');return render()}p.end=v;save();render()});
+$('#btnAddPeriod').addEventListener('click',()=>{
+  const{m}=cur();const sorted=m.periods.slice().sort((a,b)=>a.start<b.start?-1:1);const prev=sorted.at(-1);
+  let start=prev.end?add(prev.end,1):today();const l=datesOf(prev).at(-1);if(!prev.end&&l&&start<=l)start=add(l,1);
+  if(!prev.end)prev.end=add(start,-1);
+  const p={id:uid(),name:`第${m.periods.length+1}期`,start,end:add(start,27),records:{}};
+  m.periods.push(p);S.cur.p=p.id;save();render();fillForm(defaultDate());toast(`已新增${p.name}（${fmtD(p.start)} 起，4 週）`);
+});
+armed($('#btnDelPeriod'),'刪除本期',()=>{const{m,p}=cur();if(m.periods.length<2)return toast('至少要保留一期');m.periods=m.periods.filter(x=>x.id!==p.id);S.cur.p=null;save();render();fillForm(defaultDate());toast('已刪除該期')});
+
+// ---- backup ----
+$('#btnCopy').addEventListener('click',()=>{
+  const txt=JSON.stringify(S);const ta=$('#backup');ta.value=txt;
+  const fallback=()=>{ta.focus();ta.select();toast('已放到下方框內，請長按全選後複製')};
+  try{navigator.clipboard.writeText(txt).then(()=>toast('已複製，請貼到記事本保存'),fallback)}catch(e){fallback()}
+});
+armed($('#btnRestore'),'用貼上的資料還原',()=>{
+  try{const d=JSON.parse($('#backup').value);if(!d||!Array.isArray(d.members)||!d.members.length)throw 0;S=d;save();render();fillForm(defaultDate());toast('已還原資料')}
+  catch(e){toast('這段內容不是有效的備份資料，請確認有完整貼上')}
+});
+
+// ---- report mode ----
+function setMode(on){document.body.classList.toggle('reportmode',on);$('#btnExit').hidden=!on;window.scrollTo(0,0)}
+$('#btnReport').addEventListener('click',()=>setMode(true));
+$('#btnExit').addEventListener('click',()=>setMode(false));
+
+render();fillForm(defaultDate());
+if(!cur().m.name&&!datesOf(cur().p).length){$('#setup').open=true}
+</script>
