@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>體重管理成果報告</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,6 +41,8 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px
 @media (max-width:560px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:0}
 input,select,textarea{font:inherit;color:var(--fg);background:var(--input);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;min-width:0}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-height:42px;text-align:left}
+input::-webkit-date-and-time-value{text-align:left}
 textarea{min-height:90px;font-size:12px;font-family:ui-monospace,monospace}
 input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px}
 select.grow{flex:1 1 140px;width:auto}
@@ -321,3 +327,5 @@ $('#btnExit').addEventListener('click',()=>setMode(false));
 render();fillForm(defaultDate());
 if(!cur().m.name&&!datesOf(cur().p).length){$('#setup').open=true}
 </script>
+
+</html>
