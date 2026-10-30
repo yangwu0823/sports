@@ -108,12 +108,12 @@ body.reportmode .tools{display:none}
       <h2 id="formTitle">新增每日紀錄</h2>
       <div class="grid">
         <label class="f">日期<input id="f-date" type="date"></label>
-        <label class="f">體重 (kg)<input id="f-w" inputmode="decimal" placeholder="54.3"></label>
-        <label class="f">體脂率 (%)<input id="f-fat" inputmode="decimal" placeholder="30.6"></label>
-        <label class="f">肌肉率 (%)<input id="f-mus" inputmode="decimal" placeholder="65.4"></label>
-        <label class="f">內臟脂肪<input id="f-vis" inputmode="decimal" placeholder="5"></label>
+        <label class="f">體重 (kg)<input id="f-w" inputmode="decimal"></label>
+        <label class="f">體脂率 (%)<input id="f-fat" inputmode="decimal"></label>
+        <label class="f">肌肉率 (%)<input id="f-mus" inputmode="decimal"></label>
+        <label class="f">內臟脂肪<input id="f-vis" inputmode="decimal"></label>
         <label class="f">BMI<input id="f-bmi" inputmode="decimal" placeholder="有填身高可留空"></label>
-        <label class="f">生理年齡<input id="f-age" inputmode="numeric" placeholder="48"></label>
+        <label class="f">生理年齡<input id="f-age" inputmode="numeric"></label>
         <div class="f calc" style="justify-content:flex-end">體脂重自動計算<b id="f-fatkg" class="num">—</b></div>
       </div>
       <div class="row">
@@ -121,7 +121,7 @@ body.reportmode .tools{display:none}
         <button id="btnClear">清空</button>
         <button id="btnDel" class="danger" hidden>刪除這天</button>
       </div>
-      <p class="hint">點下方表格的任一天，可以載入修改。</p>
+      <p class="hint">日期可以自由選，輸入比開始日更早的紀錄，本期開始日會自動往前調整。點下方表格的任一天，可以載入修改。</p>
     </section>
 
     <details class="panel" id="setup">
@@ -273,14 +273,17 @@ $('#btnClear').addEventListener('click',()=>fillForm(defaultDate()));
 $('#btnSave').addEventListener('click',()=>{
   const{m,p}=cur();const d=$('#f-date').value;
   if(!d)return toast('請先選日期');
-  if(d<p.start)return toast(`這天早於${p.name}開始日 ${fmtD(p.start)}，請換日期或修改期別設定`);
-  if(p.end&&d>p.end)return toast(`這天超過${p.name}結束日 ${fmtD(p.end)}，請先「新增下一期」`);
+  const other=m.periods.find(q=>q.id!==p.id&&d>=q.start&&(!q.end||d<=q.end));
+  if(other)return toast(`這天屬於${other.name}，請先在上方切換到${other.name}再輸入`);
+  let moved='';
+  if(d<p.start){p.start=d;moved=`，開始日改為 ${fmtD(d)}`}
+  if(p.end&&d>p.end){p.end=d;moved=`，結束日改為 ${fmtD(d)}`}
   const r={};FK.forEach(k=>{const v=num($('#f-'+k).value);if(v!=null)r[k]=v});
   if(r.w==null)return toast('請輸入體重');
   const h=num(m.height);if(r.bmi==null&&h)r.bmi=r1(r.w/((h/100)**2));
   const existed=!!p.records[d];p.records[d]=r;
-  if(save())toast(existed?'已更新':'已新增');
-  renderReport();fillForm(existed?d:defaultDate());
+  if(save())toast((existed?'已更新':'已新增')+moved);
+  render();fillForm(existed?d:defaultDate());
 });
 armed($('#btnDel'),'刪除這天',()=>{const{p}=cur();delete p.records[$('#f-date').value];save();toast('已刪除');renderReport();fillForm(defaultDate())});
 $('#report').addEventListener('click',e=>{
